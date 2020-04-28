@@ -1,0 +1,64 @@
+Gibson assembly protocol
+Addgene has an excellent description of the basic theory and protocol of Gibson assembly. At the most superficial level, Gibson assembly involves mixing linear fragments with overlapping 5’ and 3’ ends with an exonuclease, a polymerase, and a ligase, and transforming the assembled product.
+
+This protocol has some basic considerations for primer design, as well as instructions for using the premade Gibson reaction mix and making the master mixes.
+
+Primer design:
+•	Two adjacent fragments to be combined should have at least a 22bp overlap. Increasing this should increase efficiency, but longer primers are more expensive, worse secondary structure concerns, more annoying Tm issues, etc. I typically shoot for about 25bp overlap, and total primer length of about 40bp with a GC-rich 5’ end (this will increase the Tm of the first cycle of amplification). You CAN have the entire overlap sequence on one primer, but splitting it between the two generally makes the PCR easier.
+•	If you’re amplifying off a purified plasmid, don’t worry too much about Tm. As long as they’re within about 10C you shouldn’t have problems. If you’re amplifying out of genomic DNA (or something similar), pay more attention to Tm.
+•	Needless to say, be careful about secondary structure. These primers will likely be longer than we typically use (40-60 bases), so secondary structure becomes more of a concern.
+•	Designing primers to split your resistance gene while amplifying your vector can decrease background. However, this may make the assembly less efficient (because you have more fragments).
+
+Running the Gibson assembly:
+1.	Linearize all fragments, either by PCR or restriction digestion. I recommend gel purifying all fragments. However, PCR reaction mix can be used directly.
+2.	Create your DNA Mix, according to Gibson Calculator spreadsheet. Your total volume of DNA will be 2.5uL. 
+3.	Add 7.5uL of 1.3x Gibson master mix to your DNA mix. 1.3x Gibson master mix is stored at -80C (Row 3, column 2) in 31uL aliquots. Each aliquot contains enough mix for 4 reactions – don’t re-freeze aliquots.
+4.	Incubate reaction mix at 50C for 1 hour. If you’re having trouble, changing both the incubation time and temperature can help, but generally stay between 50-55C.
+5.	Transform all 10uL into E. Coli. I tried both the standard and quick protocols.
+a.	Standard: 30 minutes on ice, 30 seconds at 42C, 2 minutes on ice, add 200uL pre-warmed LB and incubate 45 minutes shaking at 300RPM, then plate. This gave about a 10x enrichment over background
+b.	Quick (only for Amp resistance): 5 minutes on ice, plate on prewarmed plates. This gave about a 2x enrichment over background.
+
+Master mixes:
+(Unless otherwise labeled, all catalog numbers are NEB)
+5x Isothermal reaction mixture: sufficient for 37 aliquots of 5x – 4440 reactions, ~$0.07/rxn
+	- 6mL of 1M Tris pH 7.5
+	- 600µL of 1M MgCl2 
+	- 600µL of 1M DTT
+	- 600µL of 100mM NAD+ – Fisher MP21004995 (500mg $69.80)
+	- 3g of PEG-8000 (add slowly – very viscous – mix well) Fisher BP233-100 (100g $75)
+	- 120µL of each 100mM dNTP stock (480µL total) – N0446S (250µL $166)
+Fill to 12mL total volume with H2O, approximately 2mL.
+Store 320µL aliquots in epitubes at -20˚C.
+
+*Quick guide to making all the required stocks to make the 5x Isothermal rxn mix at bottom of protocol.
+To make the working 1.3x Gibson mix, thaw an epitube of 5x Isothermal rxn mix, and add the following:
+	
+1.3x Gibson Mix: sufficient for 120 reactions
+	- 320µL 5x Isothermal Rxn Mix
+	- 0.64µL of 10U/µL T5 exonuclease – M0363S (100µL $64)
+	- 0.16µL of 40U/µL Taq DNA Ligase – M0208S (50µL $78)
+	- 20µL of 2U/µL Phusion DNA Polymerase – M0530S (50µL $107)
+	- 860µL H2O
+1.2mL Total Volume.
+
+*U is units of enzyme activity.
+
+Aliquot this working stock into PCR tubes. ~31µL aliquots each hold 4 10µL Gibson reactions (7.5µL 1.3x Gibson Mix + 2.5µL DNA Mix).
+
+Stocks used to make 5x Isothermal Rxn Mixture:
+
+1M Tris
+	- 121.14g Tris in 1L H2O
+	- pH to 7.5
+
+1M MgCl2
+	- 1.015g MgCl2•6H2O in 5mL H2O
+
+1M DTT
+	- 0.771g in 5mL H2O
+
+100mM NAD+
+	- 0.332g in 5mL H2O
+
+100mM stocks of dGTP, dATP, dTTP, and dCTP
+	- bought at this concentration.
