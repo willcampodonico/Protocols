@@ -45,7 +45,7 @@ Materials
 Re-dissolve dried oligonucleotide probe blend in 100 μL of fresh RNase-free TE buffer to create a stock 100 μM. Mix well by pipetting up and down and briefly vortex. Spin down tube briefly. Aliquot and freeze at -20°C.
 
 #### smRNA FISH
-1. Coat sterile coverslips with poly-L-lysine (10 μg/mL in PBS) for 5', vitronectin (human iPS cells) 1h or gelatine (mouse ES cells) 1h. Coating can be prolonged from the minimum time suggested for up to several hours.
+1. Coat sterile coverslips with poly-L-lysine (10 μg/mL in PBS) for 5min, vitronectin (human iPS cells) 1h or gelatine (mouse ES cells) 1h. Coating can be prolonged from the minimum time suggested for up to several hours.
 2. Seed cells on glass coverslips in full growth media at desired confluency. 
 3. At the day of experiment, wash coverslips 2 times with PBS.
 4. Fix the cells in 3.7% formaldehyde in PBS for 10 min at room temperature (RT).
@@ -54,9 +54,9 @@ Re-dissolve dried oligonucleotide probe blend in 100 μL of fresh RNase-free TE 
 7. Prior hybridization, wash coverslips with 2 mL of wash buffer A (LGC Biosearch Technologies) supplemented with 10% deionized formamide (Agilent) at RT for 5 min. 
 8. Prepare hybridization buffer: 10% deionized formamide in wash buffer A (LGC Biosearch Technologies) containing 1:100 smRNA FISH probe dilution.
 9. Hybridize with 80 μL of hybridization buffer overnight at 37°C in a humid chamber. 
-10. The next day, wash cells with 1 mL of wash buffer A with 10% formamide for 30 min at 37 °C, 
+10. The next day, wash cells with 1 mL of wash buffer A with 10% formamide for 30 min at 37°C, 
 11. Wash with wash buffer A with 10% formamide containing Hoechst DNA stain (1:1,000; Thermo Fisher Scientific) for 30min at 37 °C. 
 12. Wash coverslips with 1 mL of wash buffer B (LGC Biosearch Technologies) for 5 min at RT, 
 13. Equilibrate 5 min in base glucose buffer (2x SSC, 0.4% glucose solution, 20 mM Tris pH 8.0 in RNase-free H2O)
 14. Incubate 5 min in Base Glucose buffer supplemented with 1:100 dilution of glucose oxidase (stock 3.7 mg/mL) and catalase (stock 4 mg/mL). 
-15. Mount coverslips on glass slides with ProlongGold or ProlongGlass (Life Technologies) on a glass slide.
+15. Mount coverslips on glass slides with ProlongGold or ProlongGlass (Life Technologies).
