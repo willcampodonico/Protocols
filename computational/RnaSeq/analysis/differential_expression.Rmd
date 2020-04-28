@@ -1,0 +1,264 @@
+---
+title: 'RNA-seq Differential Expression'
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, message=FALSE}
+options(stringsAsFactors = FALSE)
+
+library(rcartocolor) 
+library(genefilter)
+library(tximport)
+library(tidyverse)
+library(DESeq2)
+library(pheatmap)
+library(ggrepel)
+library(ggpubr)
+
+source("_util.R")
+source("_plotting.R")
+source("_plot_theme.R")
+```
+
+### General notes
+
+When the rmarkdown is knitted, it will consider the directory that it is saved in to be the working directory. For that reason, I usually set the working directory to be the directory of the script that I'm currently working on.
+
+You'll want to rename the plot titles to reflect the conditions that you're testing.
+
+```{r import_counts, message=FALSE, warning=FALSE, results='hide'}
+# Read in gencode annotations
+gtf <- rtracklayer::import("/scratch/Shares/rinn/genomes/Homo_sapiens/Gencode/v33/gencode.v33.annotation.gtf")
+
+# Renaming for compatibility with tximport
+# TODO: Do we still need to do this?
+names(gtf@elementMetadata@listData)[which(names(gtf@elementMetadata@listData) == "gene_id")] <-
+  "geneID"
+names(gtf@elementMetadata@listData)[which(names(gtf@elementMetadata@listData) == "gene_name")] <-
+  "geneName"
+names(gtf@elementMetadata@listData)[which(names(gtf@elementMetadata@listData) == "gene_type")] <-
+  "geneBiotype"
+gtf@elementMetadata$id <- gtf@elementMetadata$geneID
+
+genes <- gtf[which(gtf$type == "gene")]
+gtfdf <- gtf %>% as.data.frame()
+g2s <- as.data.frame(gtf@elementMetadata@listData) %>% 
+  dplyr::select(geneID, geneName) %>% 
+  distinct()
+tx2gene <- gtfdf %>%
+  mutate(TXNAME = transcript_id, GENEID = geneID) %>%
+  dplyr::select(TXNAME, GENEID)
+```
+
+
+
+```{r}
+# Read in sample annotations
+samples <- read.csv("../../samplesheet.csv") 
+
+samples <- samples %>% 
+  filter(grepl("SP", condition))
+rownames(samples) <- samples$sample_id
+
+
+# Factorize condition variables
+# In this example, there was a short peptide overexpression.
+# You'll want to make sure that the first factor level is the control
+# condition or the condition you want as the baseline. This holds 
+# true when you have multiple conditions that you want to compare.
+# For ex, back to zero timepoint.
+samples$condition <- factor(samples$condition,
+                                 levels = c("SP_CTL", "SP_OE"))
+
+
+# Read in the salmon counts data.
+files <- file.path("../results/salmon", samples$sample_id, "quant.sf")
+names(files) <- samples$sample_id
+txisalmon <- tximport(files, type = "salmon", tx2gene = tx2gene)
+```
+
+```{r retreive_tpm}
+# TPM
+tpm <- txisalmon$abundance %>%
+  as.data.frame() %>% 
+  rownames_to_column("geneID") %>%
+  merge(g2s) %>%
+  dplyr::select(geneID, geneName, everything())
+
+# Export count tables
+write_csv(tpm, "../../ipscm_rnaseq/results/tpm.csv")
+```
+
+
+```{r create_DESeqDataSet}
+# Create DESeq2 experiment objects.
+samples <- samples[colnames(txisalmon$counts),]
+stopifnot(all(rownames(samples) == colnames(txisalmon$counts)))
+
+# Let's also make sure the row ranges are in the same order
+names(gtf) <- gtf$geneID
+gtf <- gtf[rownames(txisalmon$counts)]
+
+
+dds <- DESeqDataSetFromTximport(txisalmon,
+                                colData   = samples,
+                                design    = ~ condition,
+                                rowRanges = gtf)
+```
+
+
+```{r prefilter}
+keep <- rowSums(counts(dds)) >= 10
+dds <- dds[keep, ]
+```
+
+
+```{r deseq}
+dds <- DESeq(dds)
+saveRDS(dds, file = "results/dds.rds")
+```
+
+```{r res_unshrunken}
+res <- results(dds) 
+
+# Export
+resdf <- res %>% 
+  as.data.frame() %>%
+  rownames_to_column("geneID") %>%
+  merge(g2s) %>%
+  dplyr::select(geneID, geneName, everything())
+
+write_csv(resdf, "results/res_unshrunken.csv")
+```
+
+```{r res_shrunken}
+# Use this to retrieve the coefficient 
+# for the conditions you'd like to compare
+resultsNames(dds)
+res_shrunken <- lfcShrink(dds, coef = "condition_SP_OE_vs_SP_CTL")
+
+# Export
+resdf <- res_shrunken %>% 
+  as.data.frame() %>%
+  rownames_to_column("geneID") %>%
+  merge(g2s)
+
+write_csv(resdf, "results/res_shrunken.csv")
+```
+
+
+# Plots
+
+## PCA
+
+Principal Component Analysis (PCA) is a statistical technique used to identify global patterns in high-dimensional datasets. It is commonly used to explore the similarity of biological samples in RNA-seq datasets. To achieve this, gene expression values are transformed into Principal Components (PCs), a set of linearly uncorrelated features which represent the most relevant sources of variance in the data, and subsequently visualized using a scatter plot.
+
+Each point represents an RNA-seq sample. Samples with similar gene expression profiles are closer in the three-dimensional space. If provided, sample groups are indicated using different colors, allowing for easier interpretation of the results.
+
+
+```{r variance_stabilization}
+rld <- varianceStabilizingTransformation(dds)
+```
+
+
+```{r plot_pca, message=FALSE}
+DESeq2::plotPCA(rld, intgroup = "condition")  +
+  scale_color_manual(values = c("#424242","#a8404c")) + 
+  theme_paperwhite() + 
+  ggtitle("Sample PCA")
+ggsave("figures/pca.pdf")
+ggsave("figures/pca.png")
+```
+
+## Heatmap
+
+This plot shows only differentially expressed genes on a per-sample basis. We have scaled the data by row and used the `ward.D2` method for clustering [@Ward1963-xf].
+
+```{r plot_deg_heatmap}
+plot_deg_heatmap <- function(res, rld, samp_df, interesting_groups = "condition", 
+                             padj_thresh = 0.01, lfc_thresh = 0, title,
+                             ann_colors = list(condition = c(SP_CTL  = "#424242", SP_OE = "#a8404c"))) {
+  deg <- res %>%
+    as.data.frame() %>%
+    rownames_to_column("geneID") %>%
+    filter(padj < padj_thresh, abs(log2FoldChange) > lfc_thresh)
+  
+  rld_counts <- rld@assays$data[[1]]
+  deg_rld_counts <- rld_counts[which(rownames(rld_counts) %in% deg$geneID),]
+  rld_scaled <- t(scale(t(deg_rld_counts)))
+  
+  anndf <- samp_df %>% dplyr::select(interesting_groups)
+  
+  
+  col_pal <- c(colorRampPalette(colors = c("#424242", "#ffffff"))(49),
+               "#ffffff","#ffffff",
+               colorRampPalette(colors = c("#ffffff", "#a8404c"))(49))
+  
+  levels(anndf$condition)
+  htmap <- pheatmap(rld_scaled, color = col_pal,
+                 show_rownames = F,
+                 annotation_col = anndf,
+                 annotation_colors = ann_colors,
+                 main = title)
+  return(htmap)
+}
+
+heatmap <- plot_deg_heatmap(res, rld, samp_df = samples, interesting_groups = "condition",
+                 padj_thresh = 0.01, lfc_thresh = 0, title = "DEG heatmap")
+pdf("figures/deg_heatmap.pdf"); show(heatmap); dev.off()
+png("figures/deg_heatmap.png"); show(heatmap); dev.off()
+```
+
+
+```{r}
+# MA plots
+g <- ggplot(resdf, aes(x = log10(baseMean), y = log2FoldChange, label = geneName))
+g + geom_hline(yintercept = 0) +
+  geom_point(data = resdf %>% filter(padj >= 0.01), color = "#424242", alpha = 0.4) + 
+  geom_point(data = resdf %>% filter(padj < 0.01), color = "#a8404c", alpha = 0.8) + 
+  geom_text_repel(data = resdf %>% filter(abs(log2FoldChange) > 2)) +
+  theme_paperwhite() + 
+  ggtitle("DEG MA Plot")
+ggsave("figures/maplot.pdf")
+ggsave("figures/maplot.png")
+```
+
+
+```{r}
+# Volcano plots 
+g <- ggplot(resdf, aes(x = log2FoldChange, y = -log10(padj), label = geneName))
+g + geom_vline(xintercept = 0, lty = 2) +
+  geom_point(data = resdf %>% filter(padj >= 0.01), color = "#424242", alpha = 0.4) + 
+  geom_point(data = resdf %>% filter(padj < 0.01), color = "#a8404c", alpha = 0.8) + 
+  geom_text_repel(data = resdf %>% filter(abs(log2FoldChange) > 2)) +
+  theme_paperwhite() + 
+  ggtitle("DEG Volcano Plot")
+ggsave("figures/volcano.pdf")
+ggsave("figures/volcano.png")
+```
+
+
+## MYH7b plot
+
+You can plot individual genes with this method.
+
+```{r MYH7B}
+gene_name <- "MYH7B"
+gene_id <- g2s[which(g2s$geneName == gene_name),"geneID"] 
+gene_tpm <- tpm[which(tpm$geneID == gene_id), ] %>%
+  pivot_longer(3:ncol(.), names_to = "sample_id", values_to = "tpm") %>%
+  merge(samples)
+  
+g <- ggplot(gene_tpm, aes(x = condition, y = tpm, color = condition))
+g + geom_point() +
+  stat_summary(fun.y = mean, fun.ymin = mean, fun.ymax = mean,
+               geom = "crossbar", width = 0.5) + 
+  scale_color_manual(values = c("#424242","#a8404c")) + 
+  theme_paperwhite() +
+  ggtitle(paste0(gene_name, " expression"))
+ggsave(paste0("figures/", gene_name, "_tpm.pdf"))
+ggsave(paste0("figures/", gene_name, "_tpm.png"))
+```
+
+
