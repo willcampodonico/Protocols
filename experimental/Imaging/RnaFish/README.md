@@ -45,7 +45,7 @@ Materials
 Re-dissolve dried oligonucleotide probe blend in 100 μL of fresh RNase-free TE buffer to create a stock 100 μM. Mix well by pipetting up and down and briefly vortex. Spin down tube briefly. Aliquot and freeze at -20°C.
 
 #### smRNA FISH
-1. Coat sterile coverslips with poly-L-lysine (10 μg/mL in PBS) for 5min, vitronectin (human iPS cells) 1h or gelatine (mouse ES cells) 1h. Coating can be prolonged from the minimum time suggested for up to several hours.
+1. Coat sterile coverslips with poly-L-lysine (10 μg/mL in PBS) for 5min, vitronectin (human iPS cells) 1h or gelatin (mouse ES cells) 1h. Coating can be prolonged from the minimum time suggested for up to several hours.
 2. Seed cells on glass coverslips in full growth media at desired confluency. 
 3. At the day of experiment, wash coverslips 2 times with PBS.
 4. Fix the cells in 3.7% formaldehyde in PBS for 10 min at room temperature (RT).
