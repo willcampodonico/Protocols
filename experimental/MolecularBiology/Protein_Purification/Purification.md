@@ -4,7 +4,7 @@ Date: 6/4/2020
 This is a general protocol for purification of recombinant protein from e. coli. It was adapted from the Wuttke Lab GR-DBD purification protocol.  
 
 ## Materials
-- Bacterial pellet - see ProteinExpression.md
+- Bacterial pellet - see BacterialExpression.md
 - 2x Lysis buffer (make 500mL) - this is used to make lysis buffer, wash buffers, and elution buffer  
   - 40mM Tris pH 7.5  
   - 2M NaCl  
