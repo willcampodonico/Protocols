@@ -23,5 +23,7 @@ Transform your expression plasmid into BL21(DE3) chemically competent cells acco
 - Add 10-20mL of the starter culture to each 4L flask (volume will depend on the number of flasks). Accurate measurement will ensure all flasks are synchronized for induction.  
 - Shake until bacteria reach OD-600 of 0.6-0.8, this typically takes 1-3 hours (OD-600: optical density, absorbance measured at 600nm. Can be measured in the Parker lab UV-Vis or the Cech lab NanoDrop)  
 - Once the appropriate OD-600 has been reached, induce protein expression by adding IPTG (final concentration of 0.5mM, stock 1M solution stored at -20C)  
+- Take a sample for SDS-PAGE  
 - Decrease temperature to 18C and shake overnight (alternatively induction can be done at 37C for ~3hr. Optimal expression time and temperature will vary, and can be tested in small-scale expressions analyzed by SDS-PAGE)  
+- Take a sample for SDS-PAGE  
 - After induction, collect cells by centrifugation (3000xg for 15 minutes). This pellet can be flash frozen and stored at -80 for several months.  
