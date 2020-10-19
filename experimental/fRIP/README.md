@@ -41,9 +41,10 @@
 - (add **_these_** components fresh shortly before use)
 
 2. Rotate samples at 4°C for 10 minutes
-3. Sonicate samples at 4°C in Bioruptor on the high setting using a 30 seconds on/30 seconds off cycle for 15 minutes.
-
+3. Sonicate samples. Optimal sonication conditions will need to be determined for different cell types and sonicators. We have used the following conditions:
+- Diagenode Bioruptor: on the high setting using a 30 seconds on/30 seconds off cycle for 15 minutes.
 - *NOTE: To avoid the water bath warming up too much, I usually split this up into three 5-minute sonication steps and change out the ice in the water bath in between.*
+- Covaris M220: Manufacturer instructions can be found on [their website](https://www.covaris.com/protocols/)
 
 4. Spin down cells at 13,000 RPM for 10 minutes at 4°C
 5. Transfer supernatant to new 2-mL tube on ice, and discard pellet
